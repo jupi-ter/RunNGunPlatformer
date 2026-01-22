@@ -1,5 +1,5 @@
 using System.Numerics;
-
+using Raylib_cs;
 namespace RatGame;
 
 public static class CollisionManager {
@@ -44,6 +44,23 @@ public static class CollisionManager {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    public static void DebugDrawColliders()
+    {
+        foreach (var shape in collisionShapes)
+        {
+            if (shape is CollisionOBB castedOBB)
+            {
+                //castedOBB.Width
+                Raylib.DrawRectangle((int)castedOBB.Origin.X, (int)castedOBB.Origin.Y, (int)castedOBB.Width, (int)castedOBB.Height, new Color(255, 0, 255, 150));
+            }
+
+            if (shape is CollisionCircle castedCircle)
+            {
+                Raylib.DrawCircle((int)castedCircle.Origin.X, (int)castedCircle.Origin.Y, castedCircle.Radius, new Color(255, 0, 255, 150));
             }
         }
     }

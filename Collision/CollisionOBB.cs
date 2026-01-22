@@ -96,7 +96,7 @@ public class CollisionOBB(Vector2 dimensions, Entity owner) : CollisionShape(own
         (float min1, float max1) = ProjectOntoAxis(axis, corners1);
         (float min2, float max2) = ProjectOntoAxis(axis, corners2);
 
-        return max1 < min2 || max2 < min1;
+        return max1 <= min2 || max2 <= min1;
     }
 
     private (float min, float max) ProjectOntoAxis(Vector2 axis, Vector2[] corners)

@@ -41,6 +41,7 @@ class Program
                 //world space                
                 camera.Begin();
                 EntityManager.DrawAll();
+                //CollisionManager.DebugDrawColliders();
                 camera.End();
 
                 //screen space, draw ui here

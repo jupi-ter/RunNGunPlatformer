@@ -10,6 +10,7 @@ public class Player : Entity
 
     private float moveSpeed = 2f;
     private float gravity = 1f;
+    private float jumpHeight = 30f;
     private bool isGrounded= false;
 
     public Player(Vector2 position) : base(position)
@@ -18,9 +19,9 @@ public class Player : Entity
 
     public override void OnInit()
     {
-        walkAnim = new Animation("Walk", SpriteManager.GetSprites(SpriteNames.PlayerWalk), 0.4f, true);
-        idleAnim = new Animation("Idle", SpriteManager.GetSprites(SpriteNames.PlayerIdle), 0.4f, true);
-        jumpAnim = new Animation("Jump", SpriteManager.GetSprites(SpriteNames.PlayerJump), 0.4f, true);
+        walkAnim = new Animation("Walk", SpriteManager.GetSprites(SpriteNames.PlayerWalk), 0.2f, true);
+        idleAnim = new Animation("Idle", SpriteManager.GetSprites(SpriteNames.PlayerIdle), 0.2f, true);
+        jumpAnim = new Animation("Jump", SpriteManager.GetSprites(SpriteNames.PlayerJump), 0.2f, true);
 
         animController.Play(idleAnim);
         
@@ -45,6 +46,23 @@ public class Player : Entity
         float hsp = hInput * moveSpeed;
         float vsp = gravity;
         
+        if (isGrounded)
+        {
+            if (hInput == 0)
+                animController.Play(idleAnim);
+            else
+                animController.Play(walkAnim);
+        }
+        else
+        {
+            animController.Play(jumpAnim);
+        }
+
+        if (InputManager.IsActionPressed(InputActions.Up) && isGrounded)
+        {
+            vsp -= jumpHeight;
+        }
+
         // horizontal collision check
         float onePixelX = MathF.Sign(hsp);
         if (CollisionManager.PlaceMeeting<Wall>(this, Position + new Vector2(hsp, 0)) != null)
@@ -62,7 +80,6 @@ public class Player : Entity
         float onePixelY = MathF.Sign(vsp);
         if (CollisionManager.PlaceMeeting<Wall>(this, Position + new Vector2(0, vsp)) != null)
         {
-            // move as close as we can
             while (CollisionManager.PlaceMeeting<Wall>(this, Position + new Vector2(0, onePixelY)) == null)
             {
                 Position.Y += onePixelY;
