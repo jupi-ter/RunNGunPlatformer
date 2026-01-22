@@ -1,17 +1,12 @@
-﻿using System.Numerics;
-using System.Runtime.CompilerServices;
-using Raylib_cs;
+﻿using Raylib_cs;
 
 namespace RatGame;
 
 class Program
 {
-    private const int screenWidth = 640;
-    private const int screenHeight = 480;
-
     static void Main()
     {
-        Raylib.InitWindow(screenWidth, screenHeight, "ratEngine");
+        Raylib.InitWindow(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT, "ratEngine");
         Raylib.SetTargetFPS(60);
 
         InputManager.BindKey(InputActions.Left, KeyboardKey.Left);
@@ -21,15 +16,14 @@ class Program
 
         CollisionManager.Initialize();
 
-        float halfWidth = screenWidth * 0.5f;
-        float halfHeight = screenWidth * 0.5f;
+        float halfWidth = Constants.SCREEN_WIDTH * 0.5f;
+        float halfHeight = Constants.SCREEN_WIDTH * 0.5f;
 
         // test only camera
-        GameCamera camera = new(screenWidth, screenHeight);
+        GameCamera camera = new(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
         camera.SetZoom(4f);
 
-        Player player = new(position: new Vector2(halfWidth, halfHeight - 30f));
-        Wall wall = new(position: new Vector2(halfWidth, halfHeight + 10f));
+        LevelLoader.LoadLevel(LevelNames.Test);
 
         while (!Raylib.WindowShouldClose())
         {
