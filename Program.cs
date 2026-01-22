@@ -17,7 +17,7 @@ class Program
         CollisionManager.Initialize();
 
         float halfWidth = Constants.SCREEN_WIDTH * 0.5f;
-        float halfHeight = Constants.SCREEN_WIDTH * 0.5f;
+        float halfHeight = Constants.SCREEN_HEIGHT * 0.5f;
 
         // test only camera
         GameCamera camera = new(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
