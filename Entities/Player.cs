@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.InteropServices;
 namespace RatGame;
 
 public class Player : Entity
@@ -8,10 +9,20 @@ public class Player : Entity
     private Animation? jumpAnim = null;
     private AnimationController animController = new();
 
-    private float moveSpeed = 2f;
-    private float gravity = 1f;
-    private float jumpHeight = 30f;
+    private float groundSpeed = 2f;
+    private float airSpeed = 2.5f;
+    private float moveSpeed = 0f;
+
+    private float gravity = 0.3f;
+    private float jumpHeight = 4f;
     private bool isGrounded= false;
+    private int coyoteCounter = 0;
+    private int coyoteMax = 6;
+    private int bufferCounter = 0;
+    private int maxBuffer = 4;
+    private float hsp = 0;
+    private float vsp = 0;
+    private int right = 1;
 
     public Player(Vector2 position) : base(position)
     {
@@ -35,20 +46,134 @@ public class Player : Entity
     public override void Update()
     {
         UpdateCurrentAnimation();
-        Movement();
+        MovementV2();
     }
 
-    private void Movement()
+    private void MovementV2()
     {
-        int hInput = Utils.ToInt(InputManager.IsActionDown(InputActions.Right)) 
-                - Utils.ToInt(InputManager.IsActionDown(InputActions.Left));
+        GatherInput(out int move, out bool jumpKey, out bool jumpKeyReleased);
+        UpdateGroundedState();
+        UpdateHorizontalMovement(move);
+        UpdateAnimations(move);
+        UpdateVerticalMovement(jumpKey, jumpKeyReleased);
+        CheckCollisionsAndMove();
+    }
+
+    private static void GatherInput(out int move, out bool jumpKey, out bool jumpKeyReleased)
+    {
+        int rightKey = Utils.ToInt(InputManager.IsActionDown(InputActions.Right));
+        int leftKey = Utils.ToInt(InputManager.IsActionDown(InputActions.Left));
+        jumpKey = InputManager.IsActionDown(InputActions.Up);
+        jumpKeyReleased = InputManager.IsActionReleased(InputActions.Up);
+        move = rightKey - leftKey;
+    }
+
+    private void UpdateGroundedState()
+    {
+        if (CollisionManager.PlaceMeeting<Wall>(this, Position + new Vector2 (0f, 1f)))
+        {
+            isGrounded = true;
+            moveSpeed = groundSpeed;
+        }
+        else
+        {
+            isGrounded = false;
+            moveSpeed = airSpeed;
+        }
+    }
+
+    private void UpdateHorizontalMovement(int move)
+    {
+        hsp = move * moveSpeed;
+
+        if (move != 0)
+        {
+            if (!InputManager.IsActionDown(InputActions.Right)) right = move;
+
+            if (isGrounded)
+            {
+                //dust counter and dust spawning code goes here
+            }
+        }
+        else
+        {
+            //clean dust counter    
+        }
+    }
+
+    private void UpdateVerticalMovement(bool jumpKey, bool jumpKeyReleased)
+    {
+        if (!isGrounded)
+        {
+            vsp += gravity;
+        }
+
+        if (!isGrounded)
+        {
+            if (coyoteCounter > 0)
+            {
+                coyoteCounter--;
+                if (jumpKey)
+                    Jump();
+            }
+        }
+        else
+        {
+            coyoteCounter = coyoteMax;
+        }
+
+        if (jumpKey && !CollisionManager.PlaceMeeting<Wall>(this, Position - new Vector2 (0f, jumpHeight)))
+        {
+            bufferCounter = maxBuffer;
+        }
+
+        if (bufferCounter > 0)
+        {
+            bufferCounter--;
+            if (isGrounded)
+                Jump();
+        }
+
+        if (jumpKeyReleased && vsp > 0)
+        {
+            vsp *= 0.5f;
+        }
+    }
+
+    private void CheckCollisionsAndMove()
+    {
+        float onePixelX = MathF.Sign(hsp);
+        if (CollisionManager.PlaceMeeting<Wall>(this, Position + new Vector2(hsp, 0)))
+        {
+            // move as close as we can
+            while (!CollisionManager.PlaceMeeting<Wall>(this, Position + new Vector2(onePixelX, 0)))
+            {
+                Position.X += onePixelX;
+            }
+            hsp = 0;
+        }
+        Position.X += hsp;
         
-        float hsp = hInput * moveSpeed;
-        float vsp = gravity;
+        float onePixelY = MathF.Sign(vsp);
+        if (CollisionManager.PlaceMeeting<Wall>(this, Position + new Vector2(0, vsp)))
+        {
+            while (!CollisionManager.PlaceMeeting<Wall>(this, Position + new Vector2(0, onePixelY)))
+            {
+                Position.Y += onePixelY;
+            }
+            vsp = 0;
+        }
+        Position.Y += vsp;
         
+        // update collision after all movement
+        Collision?.SetPosition(Position);
+    }
+
+    private void UpdateAnimations(int move)
+    {
         if (isGrounded)
         {
-            if (hInput == 0)
+            if (move == 0)
                 animController.Play(idleAnim);
             else
                 animController.Play(walkAnim);
@@ -57,44 +182,13 @@ public class Player : Entity
         {
             animController.Play(jumpAnim);
         }
+    }
 
-        if (InputManager.IsActionPressed(InputActions.Up) && isGrounded)
-        {
-            vsp -= jumpHeight;
-        }
-
-        // horizontal collision check
-        float onePixelX = MathF.Sign(hsp);
-        if (CollisionManager.PlaceMeeting<Wall>(this, Position + new Vector2(hsp, 0)) != null)
-        {
-            // move as close as we can
-            while (CollisionManager.PlaceMeeting<Wall>(this, Position + new Vector2(onePixelX, 0)) == null)
-            {
-                Position.X += onePixelX;
-            }
-            hsp = 0;
-        }
-        Position.X += hsp;
-        
-        // vertical collision check
-        float onePixelY = MathF.Sign(vsp);
-        if (CollisionManager.PlaceMeeting<Wall>(this, Position + new Vector2(0, vsp)) != null)
-        {
-            while (CollisionManager.PlaceMeeting<Wall>(this, Position + new Vector2(0, onePixelY)) == null)
-            {
-                Position.Y += onePixelY;
-            }
-            vsp = 0;
-            isGrounded = true;
-        }
-        else
-        {
-            isGrounded = false;
-        }
-        Position.Y += vsp;
-        
-        // update collision after all movement
-        Collision?.SetPosition(Position);
+    private void Jump()
+    {
+        // todo: squash and stretch
+        vsp = -jumpHeight;
+        bufferCounter = 0;
     }
 
     private void UpdateCurrentAnimation()

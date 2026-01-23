@@ -70,9 +70,10 @@ public static class CollisionManager {
         return shape1.CollidesWith(shape2);
     }
 
-    public static T? PlaceMeeting<T>(Entity entity, Vector2 positionToCheck) where T : Entity
+    //just make an overload if you want to return the other entity
+    public static bool PlaceMeeting<T>(Entity entity, Vector2 positionToCheck) where T : Entity
     {
-        if (entity.Collision == null) return null;
+        if (entity.Collision == null) return false;
 
         Vector2 originalPosition = entity.Position;
 
@@ -87,12 +88,13 @@ public static class CollisionManager {
             {
                 entity.Position = originalPosition;
                 entity.Collision.SetPosition(originalPosition);
-                return (T)shape.Owner;
+                //return (T)shape.Owner;
+                return true;
             }
         }
 
         entity.Position = originalPosition;
         entity.Collision.SetPosition(originalPosition);
-        return null;
+        return false;
     }
 }
