@@ -28,11 +28,7 @@ class Program
 
         LevelLoader.LoadLevel(LevelNames.Test);
 
-        var player = EntityManager.GetFirstInstanceOf<Player>();
-        if (player != null)
-        {
-            player.CurrentWeapon = new Machinegun();
-        }
+        bool runOnce = true;
 
         while (!Raylib.WindowShouldClose())
         {
@@ -40,6 +36,15 @@ class Program
             EntityManager.UpdateAll();
             CollisionManager.Update();
 
+            if (runOnce)
+            {
+                var player = EntityManager.GetFirstInstanceOf<Player>();
+                if (player != null)
+                {
+                    player.CurrentWeapon = new Machinegun();
+                }
+                runOnce = false;
+            }
             camera.Follow(new(halfWidth, halfHeight));
             camera.Update();
             EntityManager.Cleanup();
