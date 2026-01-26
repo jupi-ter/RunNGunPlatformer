@@ -4,6 +4,7 @@ using RatGame;
 public static class EntityManager
 {
     private static List<Entity> registeredEntities = [];
+    private static List<Entity> queuedEntities = [];
 
     public static T? GetFirstInstanceOf<T>() where T : Entity
     {
@@ -18,11 +19,22 @@ public static class EntityManager
 
     public static void Register(Entity entity)
     {
-        registeredEntities.Add(entity);
+        queuedEntities.Add(entity);
     }
 
     public static void UpdateAll()
     {
+        if (queuedEntities.Count > 0)
+        {
+            foreach (var entity in queuedEntities)
+            {
+                entity.Init();
+            }
+            
+            registeredEntities.AddRange(queuedEntities);
+            queuedEntities.Clear();
+        }
+
         foreach (var entity in registeredEntities)
         {
             if (entity.IsActive && !entity.IsDestroyed)
@@ -47,5 +59,6 @@ public static class EntityManager
     public static void ClearAll()
     {
         registeredEntities.Clear();
+        queuedEntities.Clear();
     }
 }

@@ -28,8 +28,6 @@ public abstract class Entity {
     public Entity(Vector2 position)
     {
         Position = position;
-        EntityManager.Register(this);
-        Init();
     }
 
     public void Init()

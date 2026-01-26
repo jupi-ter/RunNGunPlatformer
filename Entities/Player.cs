@@ -6,7 +6,7 @@ public class Player : Entity
     private Animation? walkAnim = null;
     private Animation? idleAnim = null;
     private Animation? jumpAnim = null;
-    private AnimationController animController;
+    private AnimationController animController = new();
 
     private float groundSpeed = 2f;
     private float airSpeed = 2.5f;
@@ -26,7 +26,6 @@ public class Player : Entity
 
     public Player(Vector2 position) : base(position)
     {
-        animController = new(this);
     }
 
     public override void OnInit()
@@ -46,7 +45,7 @@ public class Player : Entity
 
     public override void Update()
     {
-        animController.Update();
+        UpdateCurrentAnimation();
         MovementV2();
         Shooting();
     }
@@ -55,6 +54,7 @@ public class Player : Entity
     {
         if (CurrentWeapon == null) return;
         
+        CurrentWeapon.SetPosition(Position);
         CurrentWeapon.Update();
 
         if (CurrentWeapon.IsAutomatic) {
@@ -211,7 +211,7 @@ public class Player : Entity
         bufferCounter = 0;
     }
 
-    /*private void UpdateCurrentAnimation()
+    private void UpdateCurrentAnimation()
     {
         animController.Update();
         
@@ -223,7 +223,7 @@ public class Player : Entity
             else
                 CurrentSprite = new Sprite(animController.CurrentSprite.Texture, "");
         }
-    }*/
+    }
 
     public override void Draw()
     {

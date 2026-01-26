@@ -28,11 +28,11 @@ class Program
 
         LevelLoader.LoadLevel(LevelNames.Test);
 
-        /*var player = EntityManager.GetFirstInstanceOf<Player>();
+        var player = EntityManager.GetFirstInstanceOf<Player>();
         if (player != null)
         {
             player.CurrentWeapon = new Machinegun();
-        }*/
+        }
 
         while (!Raylib.WindowShouldClose())
         {

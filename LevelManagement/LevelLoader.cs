@@ -71,6 +71,7 @@ public static class LevelLoader
 
                 // instantiate level entities
                 Entity entity = CreateEntity(alias, position);
+                EntityManager.Register(entity);
                 currentLevelEntities.Add(entity);
             }
             catch (Exception e)

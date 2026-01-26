@@ -17,6 +17,11 @@ public abstract class Weapon()
     public Vector2 Offset;
     public bool IsAutomatic;
 
+    public void SetPosition(Vector2 position)
+    {
+        Position = position;
+    }
+
     public virtual void Update()
     {
         if (cooldownCounter > 0)
@@ -49,6 +54,7 @@ public class Machinegun : Weapon
         base.Fire(position, angleDegrees);
 
         Bullet bullet = new(position, 5f, angleDegrees);
+        EntityManager.Register(bullet);
     }
 
 }

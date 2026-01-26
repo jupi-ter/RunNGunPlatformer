@@ -4,13 +4,12 @@ namespace RatGame;
 public class Bullet : Entity
 {
     public float Speed;
-    private AnimationController animController;
+    private AnimationController animController = new();
 
     public Bullet(Vector2 position, float speed, float rotation) : base(position)
     {
         Speed = speed;
         RotationDegrees = rotation;
-        animController = new(this);
     }
 
     public override void OnInit()
@@ -23,7 +22,7 @@ public class Bullet : Entity
     public override void Update()
     {
         //if (outsideScreen) destroy;
-        animController.Update();
+        UpdateCurrentAnimation();
 
         float rotationRads = Utils.DegreesToRadians(RotationDegrees);
 
@@ -32,6 +31,20 @@ public class Bullet : Entity
             MathF.Sin(rotationRads) * Speed
         );
         Position += newPosition;
+    }
+
+    private void UpdateCurrentAnimation()
+    {
+        animController.Update();
+        
+        // Set current sprite from animation
+        if (animController.CurrentSprite != null)   
+        {
+            if (CurrentSprite != null)
+                CurrentSprite.Texture = animController.CurrentSprite.Texture;
+            else
+                CurrentSprite = new Sprite(animController.CurrentSprite.Texture, "");
+        }
     }
 
     public override void OnCollision(Entity? other)
