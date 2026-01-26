@@ -15,6 +15,7 @@ class Program
         InputManager.BindKey(InputActions.Right, KeyboardKey.Right);
         InputManager.BindKey(InputActions.Up, KeyboardKey.Up);
         InputManager.BindKey(InputActions.Down, KeyboardKey.Down);
+        InputManager.BindKey(InputActions.Shoot, KeyboardKey.Z);
 
         CollisionManager.Initialize();
 
@@ -26,6 +27,12 @@ class Program
         //camera.SetZoom(4f);
 
         LevelLoader.LoadLevel(LevelNames.Test);
+
+        /*var player = EntityManager.GetFirstInstanceOf<Player>();
+        if (player != null)
+        {
+            player.CurrentWeapon = new Machinegun();
+        }*/
 
         while (!Raylib.WindowShouldClose())
         {

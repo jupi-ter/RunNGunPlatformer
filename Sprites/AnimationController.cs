@@ -2,12 +2,13 @@ using Raylib_cs;
 
 namespace RatGame;
 
-public class AnimationController
+public class AnimationController(Entity owner)
 {
     private Animation? currentAnimation;
     private int imageIndex = 0;
     private float frameCounter = 0f;
     private bool isPlaying = false;
+    private Entity owner = owner;
 
     public Sprite? CurrentSprite => currentAnimation?.Frames[imageIndex];
     public bool IsFinished => currentAnimation != null && !currentAnimation.Loop && imageIndex >= currentAnimation.Frames.Length - 1;
@@ -25,7 +26,7 @@ public class AnimationController
         isPlaying = true;
     }
 
-    public void Update()
+    private void ControllerUpdate()
     {
         if (currentAnimation == null || !isPlaying) return;
 
@@ -48,6 +49,20 @@ public class AnimationController
                     isPlaying = false;
                 }
             }
+        }
+    }
+
+    public void Update()
+    {
+        ControllerUpdate();
+
+        // Set current sprite from animation
+        if (CurrentSprite != null)
+        {
+            if (owner.CurrentSprite != null)
+                owner.CurrentSprite.Texture = CurrentSprite.Texture;
+            else
+                owner.CurrentSprite = new Sprite(CurrentSprite.Texture, "");
         }
     }
 

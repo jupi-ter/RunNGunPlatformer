@@ -1,5 +1,4 @@
 using System.Numerics;
-using System.Runtime.InteropServices;
 namespace RatGame;
 
 public class Player : Entity
@@ -7,7 +6,7 @@ public class Player : Entity
     private Animation? walkAnim = null;
     private Animation? idleAnim = null;
     private Animation? jumpAnim = null;
-    private AnimationController animController = new();
+    private AnimationController animController;
 
     private float groundSpeed = 2f;
     private float airSpeed = 2.5f;
@@ -22,10 +21,12 @@ public class Player : Entity
     private int maxBuffer = 4;
     private float hsp = 0;
     private float vsp = 0;
-    private int right = 1;
+    private float weaponAngle = 0;
+    public Weapon? CurrentWeapon;
 
     public Player(Vector2 position) : base(position)
     {
+        animController = new(this);
     }
 
     public override void OnInit()
@@ -45,8 +46,26 @@ public class Player : Entity
 
     public override void Update()
     {
-        UpdateCurrentAnimation();
+        animController.Update();
         MovementV2();
+        Shooting();
+    }
+
+    public void Shooting()
+    {
+        if (CurrentWeapon == null) return;
+        
+        CurrentWeapon.Update();
+
+        if (CurrentWeapon.IsAutomatic) {
+            if (InputManager.IsActionDown(InputActions.Shoot))
+                CurrentWeapon.Fire(Position, weaponAngle);
+        }
+        else
+        {
+            if (InputManager.IsActionPressed(InputActions.Shoot))
+                CurrentWeapon.Fire(Position, weaponAngle);
+        }
     }
 
     private void MovementV2()
@@ -88,7 +107,8 @@ public class Player : Entity
 
         if (move != 0)
         {
-            if (!InputManager.IsActionDown(InputActions.Right)) right = move;
+            HFlip = move;
+            weaponAngle = HFlip == 1 ? 0 : 180;
 
             if (isGrounded)
             {
@@ -191,7 +211,7 @@ public class Player : Entity
         bufferCounter = 0;
     }
 
-    private void UpdateCurrentAnimation()
+    /*private void UpdateCurrentAnimation()
     {
         animController.Update();
         
@@ -203,6 +223,12 @@ public class Player : Entity
             else
                 CurrentSprite = new Sprite(animController.CurrentSprite.Texture, "");
         }
+    }*/
+
+    public override void Draw()
+    {
+        base.Draw();
+        CurrentWeapon?.Draw();
     }
 
     public override void OnCollision(Entity? other)

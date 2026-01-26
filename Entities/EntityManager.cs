@@ -5,6 +5,17 @@ public static class EntityManager
 {
     private static List<Entity> registeredEntities = [];
 
+    public static T? GetFirstInstanceOf<T>() where T : Entity
+    {
+        foreach (var entity in registeredEntities)
+        {
+            if (entity is T t)
+                return t;
+        }
+
+        return null;
+    }
+
     public static void Register(Entity entity)
     {
         registeredEntities.Add(entity);

@@ -10,6 +10,7 @@ public abstract class Entity {
     public float RotationDegrees = 0f; 
     public float ImageXScale = 1f;
     public float ImageYScale = 1f;
+    protected int HFlip = 1; //(-1, 1)
 
     // visual
     public Sprite? CurrentSprite;
@@ -47,9 +48,23 @@ public abstract class Entity {
     public virtual void Draw()
     {
         if (Visible && IsActive && !IsDestroyed && CurrentSprite != null) {
-            // scale here is a simple float, should be a vector2, todo: fix
-            // scale is a placeholder value
-            Raylib.DrawTextureEx(CurrentSprite.Texture, Position, RotationDegrees, 1f, Tint);
+            Rectangle source = new Rectangle(0, 0, CurrentSprite.Texture.Width * HFlip, CurrentSprite.Texture.Height);
+            
+            Rectangle dest = new Rectangle(
+                Position.X,
+                Position.Y,
+                CurrentSprite.Texture.Width * ImageXScale,
+                CurrentSprite.Texture.Height * ImageYScale
+            );
+            
+            Raylib.DrawTexturePro(
+                CurrentSprite.Texture,
+                source,
+                dest,
+                Origin,
+                RotationDegrees,
+                Tint
+            );
         }
     }
 

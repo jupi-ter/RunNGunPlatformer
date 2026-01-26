@@ -8,4 +8,5 @@ public static class InputActions
     public static string Right = "Right";
     public static string Up = "Up";
     public static string Down = "Down";
+    public static string Shoot = "Shoot";
 }
