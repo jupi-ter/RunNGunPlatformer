@@ -9,6 +9,8 @@ class Program
         Raylib.InitWindow(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT, "ratEngine");
         Raylib.SetTargetFPS(60);
 
+        Renderer.Initialize(Constants.GAME_WIDTH, Constants.GAME_HEIGHT);
+
         InputManager.BindKey(InputActions.Left, KeyboardKey.Left);
         InputManager.BindKey(InputActions.Right, KeyboardKey.Right);
         InputManager.BindKey(InputActions.Up, KeyboardKey.Up);
@@ -16,36 +18,36 @@ class Program
 
         CollisionManager.Initialize();
 
-        float halfWidth = Constants.SCREEN_WIDTH * 0.5f;
-        float halfHeight = Constants.SCREEN_HEIGHT * 0.5f;
+        float halfWidth = Constants.GAME_WIDTH * 0.5f;
+        float halfHeight = Constants.GAME_HEIGHT * 0.5f;
 
         // test only camera
-        GameCamera camera = new(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
-        camera.SetZoom(4f);
+        GameCamera camera = new(Constants.GAME_WIDTH, Constants.GAME_HEIGHT);
+        //camera.SetZoom(4f);
 
         LevelLoader.LoadLevel(LevelNames.Test);
 
         while (!Raylib.WindowShouldClose())
         {
-            // Update
+            // update
             EntityManager.UpdateAll();
             CollisionManager.Update();
 
             camera.Follow(new(halfWidth, halfHeight));
             camera.Update();
             EntityManager.Cleanup();
-            // Draw
+            // draw
             Raylib.BeginDrawing();
-                Raylib.ClearBackground(Color.RayWhite);
+            Raylib.ClearBackground(Color.Black);
 
-                //world space                
-                camera.Begin();
-                EntityManager.DrawAll();
-                //CollisionManager.DebugDrawColliders();
-                camera.End();
+            Renderer.BeginRender();
+            camera.Begin();
+            EntityManager.DrawAll();
+            //CollisionManager.DebugDrawColliders();
+            camera.End();
 
-                //screen space, draw ui here
-
+            //screen space, draw ui here
+            Renderer.EndRender();
             Raylib.EndDrawing();
         }
 

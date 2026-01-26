@@ -4,6 +4,8 @@ public static class Constants
 {
     public static int SCREEN_WIDTH = 640;
     public static int SCREEN_HEIGHT = 480;
+    public static int GAME_WIDTH = 160;
+    public static int GAME_HEIGHT = 120;
     public static int TILE_WIDTH = 10;
     public static int TILE_HEIGHT = 10;
 }
