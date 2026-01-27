@@ -42,6 +42,7 @@ class Program
                 if (player != null)
                 {
                     player.CurrentWeapon = new Machinegun();
+                    player.CurrentWeapon.Offset = new(5, 4);
                 }
                 runOnce = false;
             }

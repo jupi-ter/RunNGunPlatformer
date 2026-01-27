@@ -21,7 +21,6 @@ public class Player : Entity
     private int maxBuffer = 4;
     private float hsp = 0;
     private float vsp = 0;
-    private float weaponAngle = 0;
     public Weapon? CurrentWeapon;
 
     public Player(Vector2 position) : base(position)
@@ -35,10 +34,13 @@ public class Player : Entity
         jumpAnim = new Animation("Jump", SpriteManager.GetSprites(SpriteNames.PlayerJump), 0.2f, true);
 
         animController.Play(idleAnim);
-        
+
         CollisionOBB obb = new(new Vector2(10f, 10f), this);
         Collision = obb;
         Collision.SetPosition(Position);
+
+        //centering
+        //DrawFromCenter = true;
 
         base.OnInit();
     }
@@ -47,24 +49,31 @@ public class Player : Entity
     {
         UpdateCurrentAnimation();
         MovementV2();
+        UpdateWeapon();
         Shooting();
+    }
+
+    public void UpdateWeapon()
+    {
+        if (CurrentWeapon == null) return;
+
+        CurrentWeapon.SetPosition(Position);
+        CurrentWeapon.SetFlip(HFlip);
+        CurrentWeapon.Update();
     }
 
     public void Shooting()
     {
         if (CurrentWeapon == null) return;
-        
-        CurrentWeapon.SetPosition(Position);
-        CurrentWeapon.Update();
 
         if (CurrentWeapon.IsAutomatic) {
             if (InputManager.IsActionDown(InputActions.Shoot))
-                CurrentWeapon.Fire(Position, weaponAngle);
+                CurrentWeapon.Fire(Position + GetCenter(), HFlip);
         }
         else
         {
             if (InputManager.IsActionPressed(InputActions.Shoot))
-                CurrentWeapon.Fire(Position, weaponAngle);
+                CurrentWeapon.Fire(Position + GetCenter(), HFlip);
         }
     }
 
@@ -108,7 +117,6 @@ public class Player : Entity
         if (move != 0)
         {
             HFlip = move;
-            weaponAngle = HFlip == 1 ? 0 : 180;
 
             if (isGrounded)
             {
@@ -117,7 +125,7 @@ public class Player : Entity
         }
         else
         {
-            //clean dust counter    
+            //clean dust counter
         }
     }
 

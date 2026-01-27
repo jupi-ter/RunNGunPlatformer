@@ -4,18 +4,21 @@ namespace RatGame;
 public class Bullet : Entity
 {
     public float Speed;
+    public float Damage;
     private AnimationController animController = new();
 
-    public Bullet(Vector2 position, float speed, float rotation) : base(position)
+    public Bullet(Vector2 position, float speed, float rotation, float damage) : base(position)
     {
         Speed = speed;
         RotationDegrees = rotation;
+        Damage = damage;
     }
 
     public override void OnInit()
     {
         Animation anim = new("Walk", SpriteManager.GetSprites(SpriteNames.Bullet), 1f, false);
         animController.Play(anim);
+        DrawFromCenter = true;
         base.OnInit();
     }
 

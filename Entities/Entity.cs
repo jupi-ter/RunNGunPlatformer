@@ -17,6 +17,7 @@ public abstract class Entity {
     public Vector2 Origin = Vector2.Zero;
     public Color Tint = Color.White;
     public bool Visible = false;
+    public bool DrawFromCenter = false;
 
     // update logic
     public bool IsActive = false;
@@ -46,13 +47,18 @@ public abstract class Entity {
     public virtual void Draw()
     {
         if (Visible && IsActive && !IsDestroyed && CurrentSprite != null) {
+            if (DrawFromCenter)
+                Origin = new Vector2((int)(CurrentSprite.Texture.Width / 2f), (int)(CurrentSprite.Texture.Height / 2f));
+            else 
+                Origin = Vector2.Zero;
+
             Rectangle source = new Rectangle(0, 0, CurrentSprite.Texture.Width * HFlip, CurrentSprite.Texture.Height);
             
             Rectangle dest = new Rectangle(
-                Position.X,
-                Position.Y,
-                CurrentSprite.Texture.Width * ImageXScale,
-                CurrentSprite.Texture.Height * ImageYScale
+                MathF.Round(Position.X),
+                MathF.Round(Position.Y),
+                Math.Abs(CurrentSprite.Texture.Width * ImageXScale),
+                Math.Abs(CurrentSprite.Texture.Height * ImageYScale)
             );
             
             Raylib.DrawTexturePro(
@@ -64,6 +70,13 @@ public abstract class Entity {
                 Tint
             );
         }
+    }
+
+    public Vector2 GetCenter()
+    {
+        if (CurrentSprite == null) return Vector2.Zero;
+        
+        return new((int)(CurrentSprite.Texture.Width / 2f), (int)(CurrentSprite.Texture.Height / 2f));
     }
 
     public virtual void OnCollision(Entity? other)
