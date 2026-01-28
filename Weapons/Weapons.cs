@@ -8,8 +8,7 @@ public abstract class Weapon()
 {
     protected float damage;
     protected int cooldownFrames;
-    protected int cooldownCounter;
-    protected bool canShoot => cooldownCounter <= 0;
+    protected bool canShoot = true;
     protected Sprite? sprite;
     protected int hFlip = 1;
     protected int horizontalRecoil = 0;
@@ -25,19 +24,20 @@ public abstract class Weapon()
         Position = position + flippedOffset;
     }
 
-    public virtual void Update()
-    {
-        if (cooldownCounter > 0)
-            cooldownCounter--;
-    }
-
     public void Fire(Entity entity, int hFlip)
     {
         if (!canShoot) return;
-        cooldownCounter = cooldownFrames;
+        canShoot = false;
+        TimerManager.AddTimer(new Timer(cooldownFrames, () =>
+        {
+            canShoot = true;
+        }));
         this.hFlip = hFlip;
         //recoil
-        entity.Position -= new Vector2(horizontalRecoil * hFlip, 0);
+        if (entity is Player player)
+        {
+            player.AddRecoil(horizontalRecoil);
+        }
         OnFire(entity);
     }
 

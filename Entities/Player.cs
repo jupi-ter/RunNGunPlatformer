@@ -1,4 +1,6 @@
 using System.Numerics;
+using System.Runtime.CompilerServices;
+using Raylib_cs;
 namespace RatGame;
 
 public class Player : Entity
@@ -21,7 +23,11 @@ public class Player : Entity
     private int maxBuffer = 4;
     private float hsp = 0;
     private float vsp = 0;
+    private float recoil = 0;
     public Weapon? CurrentWeapon;
+
+    private float targetXScale = 1;
+    private float targetYScale = 1;
 
     public Player(Vector2 position) : base(position)
     {
@@ -48,9 +54,19 @@ public class Player : Entity
     public override void Update()
     {
         UpdateCurrentAnimation();
-        MovementV2();
         UpdateWeapon();
         Shooting();
+        MovementV2();
+        UpdateScale();
+    }
+
+    private void UpdateScale()
+    {
+        if (ImageXScale != targetXScale || ImageYScale != targetYScale)
+        {
+            ImageXScale = Single.Lerp(ImageXScale, targetXScale, 0.1f);
+            ImageYScale = Single.Lerp(ImageYScale, targetYScale, 0.1f);
+        }
     }
 
     public void UpdateWeapon()
@@ -59,7 +75,6 @@ public class Player : Entity
 
         CurrentWeapon.SetPosition(Position);
         CurrentWeapon.SetFlip(HFlip);
-        CurrentWeapon.Update();
     }
 
     public void Shooting()
@@ -112,11 +127,13 @@ public class Player : Entity
 
     private void UpdateHorizontalMovement(int move)
     {
-        hsp = move * moveSpeed;
+        hsp = move * moveSpeed + recoil;
+        recoil = 0;
 
         if (move != 0)
         {
-            HFlip = move;
+            if (!InputManager.IsActionDown(InputActions.Shoot) && !InputManager.IsActionPressed(InputActions.Shoot))
+                HFlip = move;
 
             if (isGrounded)
             {
@@ -168,6 +185,11 @@ public class Player : Entity
         }
     }
 
+    public void AddRecoil(int amount)
+    {
+        recoil = -amount * HFlip;
+    }
+
     private void CheckCollisionsAndMove()
     {
         float onePixelX = MathF.Sign(hsp);
@@ -208,15 +230,29 @@ public class Player : Entity
         }
         else
         {
-            animController.Play(jumpAnim);
+            //animController.Play(jumpAnim);
         }
     }
 
     private void Jump()
     {
         // todo: squash and stretch
+        Squash();
+        TimerManager.AddTimer(new Timer(15, Stretch));
         vsp = -jumpHeight;
         bufferCounter = 0;
+    }
+
+    public void Squash()
+    {
+        targetXScale = 0.7f;
+        targetYScale = 1.3f;
+    }
+
+    public void Stretch()
+    {
+        targetXScale = 1;
+        targetYScale = 1;
     }
 
     private void UpdateCurrentAnimation()

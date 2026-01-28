@@ -32,7 +32,8 @@ class Program
 
         while (!Raylib.WindowShouldClose())
         {
-            // update
+            // update 
+            TimerManager.Update();
             EntityManager.UpdateAll();
             CollisionManager.Update();
 
