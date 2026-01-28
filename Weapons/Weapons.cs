@@ -12,10 +12,12 @@ public abstract class Weapon()
     protected bool canShoot => cooldownCounter <= 0;
     protected Sprite? sprite;
     protected int hFlip = 1;
+    protected int horizontalRecoil = 0;
 
     public Vector2 Position;
     public Vector2 Offset;
     public bool IsAutomatic;
+    
 
     public void SetPosition(Vector2 position)
     {
@@ -29,12 +31,17 @@ public abstract class Weapon()
             cooldownCounter--;
     }
 
-    public virtual void Fire(Vector2 position, int hFlip)
+    public void Fire(Entity entity, int hFlip)
     {
         if (!canShoot) return;
         cooldownCounter = cooldownFrames;
         this.hFlip = hFlip;
+        //recoil
+        entity.Position -= new Vector2(horizontalRecoil * hFlip, 0);
+        OnFire(entity);
     }
+
+    public abstract void OnFire(Entity entity);
 
     public void SetFlip(int hFlip)
     {
@@ -54,23 +61,23 @@ public abstract class Weapon()
 
 public class Machinegun : Weapon
 {
-    public  Machinegun()
+    public Machinegun()
     {
         damage = 1f;
         cooldownFrames = 7;
         sprite = SpriteManager.GetSprite(SpriteNames.Machinegun);
+        IsAutomatic = true;
+        horizontalRecoil = 2;
         Offset = new Vector2(0, 0);
     }
 
-    public override void Fire(Vector2 position, int hFlip)
+    public override void OnFire(Entity entity)
     {
-        base.Fire(position, hFlip);
-
         float angleDegrees = hFlip == 1 ? 0 : 180;
-        Bullet bullet = new(position, 5f, angleDegrees, damage);
+        var origin = entity.Position + entity.GetCenter();
+        Bullet bullet = new(origin, 5f, angleDegrees, damage);
         EntityManager.Register(bullet);
-
-        Console.WriteLine($"Bullet spawned at: {position}, angle: {angleDegrees}, hFlip: {hFlip}");
+        //Console.WriteLine($"Bullet spawned at: {position}, angle: {angleDegrees}, hFlip: {hFlip}");
     }
 
 }

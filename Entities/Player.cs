@@ -68,12 +68,12 @@ public class Player : Entity
 
         if (CurrentWeapon.IsAutomatic) {
             if (InputManager.IsActionDown(InputActions.Shoot))
-                CurrentWeapon.Fire(Position + GetCenter(), HFlip);
+                CurrentWeapon.Fire(this, HFlip);
         }
         else
         {
             if (InputManager.IsActionPressed(InputActions.Shoot))
-                CurrentWeapon.Fire(Position + GetCenter(), HFlip);
+                CurrentWeapon.Fire(this, HFlip);
         }
     }
 
