@@ -12,9 +12,8 @@ public static class TimerManager
         {
             var timer = currentTimers[i];
             timer.Increment();
-            if (timer.Completed)
-                currentTimers.RemoveAt(i);
         }
+        currentTimers.RemoveAll(t => t.Completed);
     }
 
     public static void AddTimer(Timer timer)
