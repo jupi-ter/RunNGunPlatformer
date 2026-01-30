@@ -2,18 +2,20 @@ namespace RatGame;
 
 public static class TimerManager
 {
-    private static List<Timer> currentTimers = [];
+    private static SwapbackList<Timer> currentTimers = new();
 
     public static void Update()
     {
         if (currentTimers.Count < 1) return;
 
-        for (int i = currentTimers.Count - 1; i >= 0; i--)
+        for (int i = 0; i < currentTimers.Count; i++)
         {
             var timer = currentTimers[i];
             timer.Increment();
+            if (timer.Completed)
+                currentTimers.RemoveAt(i);
+                i--;
         }
-        currentTimers.RemoveAll(t => t.Completed);
     }
 
     public static void AddTimer(Timer timer)
